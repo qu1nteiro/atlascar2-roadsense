@@ -3,8 +3,6 @@
 <!-- Uma frase: o que este repositório faz. Ex.: "Perceção frontal com LiDAR 2D Sick LMS151
 no ATLASCAR2: deteção de obstáculos, espaço livre e planeamento local." -->
 
-Do some change.
-Another change.
 
 ![Demonstração](docs/img/demo.gif)
 
