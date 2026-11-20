@@ -1,0 +1,62 @@
+# Versão para Windows / macOS (Docker Desktop) do compose.yaml.
+# Não existe rede "host" real: os contentores ficam na rede bridge do Docker
+# e a porta do Foxglove é publicada para o Windows. Sem o serviço rviz.
+#   $env:COMPOSE_FILE = "compose.windows.yaml"   (uma vez por terminal)
+#   docker compose --profile simulado --profile foxglove up
+# Quem alterar um serviço no compose.yaml altera-o também aqui.
+
+x-ros: &ros
+  build: .
+  image: va/${GRUPO:-g00}:latest
+  network_mode: bridge
+  ipc: host
+  stop_signal: SIGINT
+  environment:
+    - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-42}
+    - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+  volumes:
+    - ./data:/data
+
+services:
+  simulador:
+    <<: *ros
+    profiles: [simulado]
+    command: >
+      ros2 run va_g00 fake_scan --ros-args
+      --params-file /ws/install/va_g00/share/va_g00/config/params.yaml
+
+  reprodutor:
+    <<: *ros
+    profiles: [reproduzir]
+    command: >
+      ros2 bag play /data/${BAG:-indicar_BAG} --loop
+      --topics ${TOPICOS:-/scan /tf /tf_static}
+
+  percecao:
+    <<: *ros
+    command: >
+      ros2 run va_g00 scan_to_grid --ros-args -r __ns:=/${GRUPO:-g00}
+      --params-file /ws/install/va_g00/share/va_g00/config/params.yaml
+
+  planeador:
+    <<: *ros
+    command: >
+      ros2 run va_planeamento local_astar --ros-args -r __ns:=/${GRUPO:-g00}
+      --params-file /ws/install/va_g00/share/va_g00/config/params.yaml
+
+  gravador:
+    <<: *ros
+    profiles: [gravar]
+    command: >
+      bash -c 'exec ros2 bag record -s mcap
+      -o /data/${GRUPO:-g00}_resultados_$$(date +%Y%m%d_%H%M%S)
+      /scan /tf /tf_static
+      /${GRUPO:-g00}/grelha_local /${GRUPO:-g00}/zona_proibida
+      /${GRUPO:-g00}/caminho_local /${GRUPO:-g00}/estado'
+
+  foxglove:
+    <<: *ros
+    profiles: [foxglove]
+    ports:
+      - "8765:8765"
+    command: ros2 launch foxglove_bridge foxglove_bridge_launch.xml port:=8765

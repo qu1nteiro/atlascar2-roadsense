@@ -1,0 +1,85 @@
+# Projeto do grupo: perceção -> grelha local -> planeador local (A*).
+# O GRUPO e o ROS_DOMAIN_ID vêm do ficheiro .env.
+#
+#   docker compose build
+#   docker compose --profile simulado up                -> LiDAR simulado + perceção + planeador
+#   docker compose --profile reproduzir up              -> o mesmo, com um bag gravado (BAG=...)
+#   ... --profile gravar                                -> grava sensor + resultados em ./data
+#   ... --profile foxglove                              -> foxglove_bridge (porta 8765)
+#   ... --profile rviz                                  -> rviz2 (Linux, X11)
+
+x-ros: &ros
+  build: .
+  image: va/${GRUPO:-g00}:latest
+  network_mode: host          # Linux: o contentor usa a rede do portátil (sensores, DDS)
+  ipc: host                   # necessário para o Fast DDS entre contentores com rede host
+  stop_signal: SIGINT         # Ctrl+C "limpo" para os nós e para o ros2 bag
+  environment:
+    - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-42}
+    - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+  volumes:
+    - ./data:/data            # na aquisição real, aqui monta-se o SSD externo
+
+services:
+  # ----------------------------------------------------------------- fontes de dados
+  simulador:                  # LiDAR 2D simulado (para testar sem carro nem bag)
+    <<: *ros
+    profiles: [simulado]
+    command: >
+      ros2 run va_g00 fake_scan --ros-args
+      --params-file /ws/install/va_g00/share/va_g00/config/params.yaml
+
+  reprodutor:                 # reproduz um bag de ./data (só os tópicos em TOPICOS, ver .env)
+    <<: *ros
+    profiles: [reproduzir]
+    command: >
+      ros2 bag play /data/${BAG:-indicar_BAG} --loop
+      --topics ${TOPICOS:-/scan /tf /tf_static}
+
+  # driver:                   # o driver real do sensor do grupo (exemplo: LiDAR 2D Hokuyo)
+  #   <<: *ros
+  #   profiles: [sensor]
+  #   command: >
+  #     ros2 run urg_node urg_node_driver --ros-args
+  #     -p ip_address:=192.168.0.10 -p laser_frame_id:=lidar2d_frente
+
+  # ----------------------------------------------------------------- processamento
+  percecao:                   # o nó do grupo: sensor -> grelha_local
+    <<: *ros
+    command: >
+      ros2 run va_g00 scan_to_grid --ros-args -r __ns:=/${GRUPO:-g00}
+      --params-file /ws/install/va_g00/share/va_g00/config/params.yaml
+
+  planeador:                  # comum a todos: grelha_local -> caminho_local + estado
+    <<: *ros
+    command: >
+      ros2 run va_planeamento local_astar --ros-args -r __ns:=/${GRUPO:-g00}
+      --params-file /ws/install/va_g00/share/va_g00/config/params.yaml
+
+  # ----------------------------------------------------------------- gravação e visualização
+  gravador:
+    <<: *ros
+    profiles: [gravar]
+    command: >
+      bash -c 'exec ros2 bag record -s mcap
+      -o /data/${GRUPO:-g00}_resultados_$$(date +%Y%m%d_%H%M%S)
+      /scan /tf /tf_static
+      /${GRUPO:-g00}/grelha_local /${GRUPO:-g00}/zona_proibida
+      /${GRUPO:-g00}/caminho_local /${GRUPO:-g00}/estado'
+
+  foxglove:
+    <<: *ros
+    profiles: [foxglove]
+    command: ros2 launch foxglove_bridge foxglove_bridge_launch.xml port:=8765
+
+  rviz:
+    <<: *ros
+    profiles: [rviz]
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-42}
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    command: rviz2 -f base_link
