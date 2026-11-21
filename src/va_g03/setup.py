@@ -2,7 +2,7 @@ from glob import glob
 
 from setuptools import setup
 
-package_name = 'va_g00'
+package_name = 'va_g03'
 
 setup(
     name=package_name,
@@ -15,14 +15,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Grupo 00',
-    maintainer_email='grupo00@ua.pt',
-    description='Grupo 00: driver (simulado) e perceção que publica a grelha local',
+    maintainer='Grupo 03',
+    maintainer_email='grupo03@ua.pt',
+    description='Grupo 03: driver (simulado) e perceção que publica a grelha local',
     license='MIT',
     entry_points={
         'console_scripts': [
-            'fake_scan = va_g00.fake_scan:main',
-            'scan_to_grid = va_g00.scan_to_grid:main',
+            'fake_scan = va_g03.fake_scan:main',
+            'scan_to_grid = va_g03.scan_to_grid:main',
         ],
     },
 )

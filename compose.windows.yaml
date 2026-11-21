@@ -7,7 +7,7 @@
 
 x-ros: &ros
   build: .
-  image: va/${GRUPO:-g00}:latest
+  image: va/${GRUPO:-g03}:latest
   network_mode: bridge
   ipc: host
   stop_signal: SIGINT
@@ -22,8 +22,8 @@ services:
     <<: *ros
     profiles: [simulado]
     command: >
-      ros2 run va_g00 fake_scan --ros-args
-      --params-file /ws/install/va_g00/share/va_g00/config/params.yaml
+      ros2 run va_g03 fake_scan --ros-args
+      --params-file /ws/install/va_g03/share/va_g03/config/params.yaml
 
   reprodutor:
     <<: *ros
@@ -35,24 +35,24 @@ services:
   percecao:
     <<: *ros
     command: >
-      ros2 run va_g00 scan_to_grid --ros-args -r __ns:=/${GRUPO:-g00}
-      --params-file /ws/install/va_g00/share/va_g00/config/params.yaml
+      ros2 run va_g03 scan_to_grid --ros-args -r __ns:=/${GRUPO:-g03}
+      --params-file /ws/install/va_g03/share/va_g03/config/params.yaml
 
   planeador:
     <<: *ros
     command: >
-      ros2 run va_planeamento local_astar --ros-args -r __ns:=/${GRUPO:-g00}
-      --params-file /ws/install/va_g00/share/va_g00/config/params.yaml
+      ros2 run va_planeamento local_astar --ros-args -r __ns:=/${GRUPO:-g03}
+      --params-file /ws/install/va_g03/share/va_g03/config/params.yaml
 
   gravador:
     <<: *ros
     profiles: [gravar]
     command: >
       bash -c 'exec ros2 bag record -s mcap
-      -o /data/${GRUPO:-g00}_resultados_$$(date +%Y%m%d_%H%M%S)
+      -o /data/${GRUPO:-g03}_resultados_$$(date +%Y%m%d_%H%M%S)
       /scan /tf /tf_static
-      /${GRUPO:-g00}/grelha_local /${GRUPO:-g00}/zona_proibida
-      /${GRUPO:-g00}/caminho_local /${GRUPO:-g00}/estado'
+      /${GRUPO:-g03}/grelha_local /${GRUPO:-g03}/zona_proibida
+      /${GRUPO:-g03}/caminho_local /${GRUPO:-g03}/estado'
 
   foxglove:
     <<: *ros
