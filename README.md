@@ -1,4 +1,4 @@
-# VA 2026/2027 · Grupo 00 · <tema do projeto>
+# VA 2026/2027 · Grupo 03 · RoadSense (projeto 8)
 
 <!-- Uma frase: o que este repositório faz. Ex.: "Perceção frontal com LiDAR 2D Sick LMS151
 no ATLASCAR2: deteção de obstáculos, espaço livre e planeamento local." -->
@@ -8,11 +8,11 @@ no ATLASCAR2: deteção de obstáculos, espaço livre e planeamento local." -->
 
 | | |
 |---|---|
-| **Sensor** | <modelo, ligação (Ethernet / USB / série), frequência> |
-| **Posição no carro** | <frame_id, x y z (m) e orientação em relação ao base_link> |
-| **Driver ROS 2** | <pacote, p. ex. `ros-jazzy-sick-scan-xd`> |
-| **Saídas** | `/gNN/grelha_local`, `/gNN/caminho_local`, `/gNN/estado`, <outras> |
-| **Equipa** | <nome (nº mec.)>, <nome (nº mec.)> |
+| **Sensor** | LiDAR 4 feixes |
+| **Posição no carro** | TODO: |
+| **Driver ROS 2** | TODO: |
+| **Saídas** | Tópicos próprios do grupo; `/g03/grelha_local` (nav_msgs/OccupancyGrid em `base_link`, células de 0,2 m, x de -5 a 35 m, y de -10 a 10 m; -1 desconhecido, 0 livre, 100 ocupado) |
+| **Equipa** | TODO: |
 
 ## Arquitetura
 
