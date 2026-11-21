@@ -1,4 +1,4 @@
-# Verificação automática a cada push: a imagem constrói-se e os testes passam.
+# Automatic check on every push: the image builds and the tests pass.
 name: CI
 
 on:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Construir a imagem
+      - name: Build the image
         run: docker compose build
-      - name: Testes (pytest dentro do contentor)
+      - name: Tests (pytest inside the container)
         run: docker compose run --rm planeador python3 -m pytest -q /ws/src

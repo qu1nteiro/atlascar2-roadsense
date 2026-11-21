@@ -15,9 +15,9 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Grupo 03',
+    maintainer='Group 03',
     maintainer_email='grupo03@ua.pt',
-    description='Grupo 03: driver (simulado) e perceção que publica a grelha local',
+    description='Group 03: simulated driver and perception publishing the local occupancy grid',
     license='MIT',
     entry_points={
         'console_scripts': [

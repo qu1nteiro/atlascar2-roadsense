@@ -2,8 +2,8 @@
 <package format="3">
   <name>va_planeamento</name>
   <version>0.1.0</version>
-  <description>Grelha de ocupação local e planeador local A* (comum a todos os grupos de VA)</description>
-  <maintainer email="va@ua.pt">Docentes de VA</maintainer>
+  <description>Local occupancy grid and local A* planner (shared by all VA groups)</description>
+  <maintainer email="va@ua.pt">VA teaching staff</maintainer>
   <license>MIT</license>
 
   <exec_depend>rclpy</exec_depend>

@@ -1,29 +1,29 @@
-# Parâmetros dos nós. "/**/<nó>" aplica-se ao nó com esse nome
-# em qualquer namespace (/g00, /g05, ...).
+# Node parameters. "/**/<node>" applies to the node with that name
+# in any namespace (/g03, ...).
 /**/fake_scan:
   ros__parameters:
     frame_id: lidar2d_frente
-    velocidade: 4.0
-    cenario: desvio            # desvio | bloqueio
+    speed: 4.0
+    scenario: swerve          # swerve | blocked
 
 /**/scan_to_grid:
   ros__parameters:
-    frame_grelha: base_link
-    resolucao: 0.2
+    grid_frame: base_link
+    resolution: 0.2
     x_min: -5.0
     x_max: 35.0
     y_min: -10.0
     y_max: 10.0
-    marcar_livre: true
+    mark_free: true
 
 /**/local_astar:
   ros__parameters:
-    frequencia: 5.0
-    objetivo_x: 25.0           # objetivo local: 25 m à frente, no centro da faixa
-    objetivo_y: 0.0
-    raio_inflacao: 1.0         # meia largura do ATLASCAR2 (~0,75 m) + margem
-    peso_heuristica: 1.0
-    desconhecido_livre: true
-    corredor_y_min: 0.0        # limites laterais da estrada (m), se conhecidos;
-    corredor_y_max: 0.0        # iguais = desligado
-    limiar_desvio: 0.3
+    rate: 5.0
+    goal_x: 25.0           # local goal: 25 m ahead, lane center
+    goal_y: 0.0
+    inflation_radius: 1.0         # half the ATLASCAR2 width (~0.75 m) + margin
+    heuristic_weight: 1.0
+    unknown_is_free: true
+    corridor_y_min: 0.0        # road lateral limits (m), if known;
+    corridor_y_max: 0.0        # equal = disabled
+    swerve_threshold: 0.3

@@ -1,9 +1,9 @@
-# Versão para Windows / macOS (Docker Desktop) do compose.yaml.
-# Não existe rede "host" real: os contentores ficam na rede bridge do Docker
-# e a porta do Foxglove é publicada para o Windows. Sem o serviço rviz.
-#   $env:COMPOSE_FILE = "compose.windows.yaml"   (uma vez por terminal)
+# Windows / macOS (Docker Desktop) version of compose.yaml.
+# There is no real "host" network: containers stay on Docker's bridge network
+# and the Foxglove port is published to Windows. No rviz service.
+#   $env:COMPOSE_FILE = "compose.windows.yaml"   (once per terminal)
 #   docker compose --profile simulado --profile foxglove up
-# Quem alterar um serviço no compose.yaml altera-o também aqui.
+# If you change a service in compose.yaml, change it here too.
 
 x-ros: &ros
   build: .
@@ -29,7 +29,7 @@ services:
     <<: *ros
     profiles: [reproduzir]
     command: >
-      ros2 bag play /data/${BAG:-indicar_BAG} --loop
+      ros2 bag play /data/${BAG:-set_BAG} --loop
       --topics ${TOPICOS:-/scan /tf /tf_static}
 
   percecao:
@@ -49,7 +49,7 @@ services:
     profiles: [gravar]
     command: >
       bash -c 'exec ros2 bag record -s mcap
-      -o /data/${GRUPO:-g03}_resultados_$$(date +%Y%m%d_%H%M%S)
+      -o /data/${GRUPO:-g03}_results_$$(date +%Y%m%d_%H%M%S)
       /scan /tf /tf_static
       /${GRUPO:-g03}/grelha_local /${GRUPO:-g03}/zona_proibida
       /${GRUPO:-g03}/caminho_local /${GRUPO:-g03}/estado'

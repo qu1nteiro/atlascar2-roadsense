@@ -1,68 +1,68 @@
-# Projeto do grupo: perceção -> grelha local -> planeador local (A*).
-# O GRUPO e o ROS_DOMAIN_ID vêm do ficheiro .env.
+# Group project: perception -> local occupancy grid -> local planner (A*).
+# GRUPO and ROS_DOMAIN_ID come from the .env file.
 #
 #   docker compose build
-#   docker compose --profile simulado up                -> LiDAR simulado + perceção + planeador
-#   docker compose --profile reproduzir up              -> o mesmo, com um bag gravado (BAG=...)
-#   ... --profile gravar                                -> grava sensor + resultados em ./data
-#   ... --profile foxglove                              -> foxglove_bridge (porta 8765)
+#   docker compose --profile simulado up                -> simulated LiDAR + perception + planner
+#   docker compose --profile reproduzir up              -> same, with a recorded bag (BAG=...)
+#   ... --profile gravar                                -> records sensor + results into ./data
+#   ... --profile foxglove                              -> foxglove_bridge (port 8765)
 #   ... --profile rviz                                  -> rviz2 (Linux, X11)
 
 x-ros: &ros
   build: .
   image: va/${GRUPO:-g03}:latest
-  network_mode: host          # Linux: o contentor usa a rede do portátil (sensores, DDS)
-  ipc: host                   # necessário para o Fast DDS entre contentores com rede host
-  stop_signal: SIGINT         # Ctrl+C "limpo" para os nós e para o ros2 bag
+  network_mode: host          # Linux: the container uses the laptop's network (sensors, DDS)
+  ipc: host                   # required for Fast DDS between containers with host networking
+  stop_signal: SIGINT         # clean Ctrl+C for the nodes and for ros2 bag
   environment:
     - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-42}
     - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
   volumes:
-    - ./data:/data            # na aquisição real, aqui monta-se o SSD externo
+    - ./data:/data            # in real acquisition, the external SSD is mounted here
 
 services:
-  # ----------------------------------------------------------------- fontes de dados
-  simulador:                  # LiDAR 2D simulado (para testar sem carro nem bag)
+  # ----------------------------------------------------------------- data sources
+  simulador:                  # simulated 2D LiDAR (to test without the car or a bag)
     <<: *ros
     profiles: [simulado]
     command: >
       ros2 run va_g03 fake_scan --ros-args
       --params-file /ws/install/va_g03/share/va_g03/config/params.yaml
 
-  reprodutor:                 # reproduz um bag de ./data (só os tópicos em TOPICOS, ver .env)
+  reprodutor:                 # replays a bag from ./data (only the topics in TOPICOS, see .env)
     <<: *ros
     profiles: [reproduzir]
     command: >
-      ros2 bag play /data/${BAG:-indicar_BAG} --loop
+      ros2 bag play /data/${BAG:-set_BAG} --loop
       --topics ${TOPICOS:-/scan /tf /tf_static}
 
-  # driver:                   # o driver real do sensor do grupo (exemplo: LiDAR 2D Hokuyo)
+  # driver:                   # the group's real sensor driver (example: Hokuyo 2D LiDAR)
   #   <<: *ros
   #   profiles: [sensor]
   #   command: >
   #     ros2 run urg_node urg_node_driver --ros-args
   #     -p ip_address:=192.168.0.10 -p laser_frame_id:=lidar2d_frente
 
-  # ----------------------------------------------------------------- processamento
-  percecao:                   # o nó do grupo: sensor -> grelha_local
+  # ----------------------------------------------------------------- processing
+  percecao:                   # the group's node: sensor -> grelha_local
     <<: *ros
     command: >
       ros2 run va_g03 scan_to_grid --ros-args -r __ns:=/${GRUPO:-g03}
       --params-file /ws/install/va_g03/share/va_g03/config/params.yaml
 
-  planeador:                  # comum a todos: grelha_local -> caminho_local + estado
+  planeador:                  # shared by all: grelha_local -> caminho_local + estado
     <<: *ros
     command: >
       ros2 run va_planeamento local_astar --ros-args -r __ns:=/${GRUPO:-g03}
       --params-file /ws/install/va_g03/share/va_g03/config/params.yaml
 
-  # ----------------------------------------------------------------- gravação e visualização
+  # ----------------------------------------------------------------- recording and visualization
   gravador:
     <<: *ros
     profiles: [gravar]
     command: >
       bash -c 'exec ros2 bag record -s mcap
-      -o /data/${GRUPO:-g03}_resultados_$$(date +%Y%m%d_%H%M%S)
+      -o /data/${GRUPO:-g03}_results_$$(date +%Y%m%d_%H%M%S)
       /scan /tf /tf_static
       /${GRUPO:-g03}/grelha_local /${GRUPO:-g03}/zona_proibida
       /${GRUPO:-g03}/caminho_local /${GRUPO:-g03}/estado'

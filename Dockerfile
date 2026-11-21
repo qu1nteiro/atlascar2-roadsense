@@ -1,13 +1,13 @@
-# Imagem do grupo (ROS 2 Jazzy).
-# Quando a imagem base dos docentes estiver publicada no repositório comum, basta trocar o BASE_IMAGE:
-#   docker compose build --build-arg BASE_IMAGE=<imagem-base-do-repositorio-comum>
+# Group image (ROS 2 Jazzy).
+# When the teaching staff's base image is published in the common repository, just swap BASE_IMAGE:
+#   docker compose build --build-arg BASE_IMAGE=<base-image-from-the-common-repo>
 ARG BASE_IMAGE=ros:jazzy-ros-base
 FROM ${BASE_IMAGE}
 
 SHELL ["/bin/bash", "-c"]
 
-# Tudo o que a app precisa é instalado aqui. Se não está no Dockerfile, não existe.
-# O driver do sensor do grupo entra nesta lista (p. ex. ros-jazzy-velodyne, ros-jazzy-usb-cam).
+# Everything the app needs is installed here. If it is not in the Dockerfile, it does not exist.
+# The group's sensor driver goes in this list (e.g. ros-jazzy-velodyne, ros-jazzy-usb-cam).
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ros-jazzy-rosbag2-storage-mcap \
         ros-jazzy-foxglove-bridge \
@@ -16,12 +16,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3-pytest \
     && rm -rf /var/lib/apt/lists/*
 
-# Workspace ROS 2: o pacote comum (va_planeamento) e o pacote do grupo (va_gNN)
+# ROS 2 workspace: the shared package (va_planeamento) and the group's package (va_gNN)
 WORKDIR /ws
 COPY src/ src/
 RUN source /opt/ros/jazzy/setup.bash && colcon build
 
-# Entrypoint: carrega o ROS 2 e o workspace antes de qualquer comando
+# Entrypoint: loads ROS 2 and the workspace before any command
 RUN printf '%s\n' '#!/bin/bash' 'set -e' \
         'source /opt/ros/jazzy/setup.bash' 'source /ws/install/setup.bash' 'exec "$@"' \
         > /entrypoint.sh && chmod +x /entrypoint.sh \

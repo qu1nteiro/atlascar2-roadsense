@@ -1,64 +1,64 @@
-# VA 2026/2027 · Grupo 03 · RoadSense (projeto 8)
+# VA 2026/2027 · Group 03 · RoadSense (project 8)
 
-<!-- Uma frase: o que este repositório faz. Ex.: "Perceção frontal com LiDAR 2D Sick LMS151
-no ATLASCAR2: deteção de obstáculos, espaço livre e planeamento local." -->
+<!-- One sentence: what this repository does. E.g.: "Front perception with a 2D Sick LMS151 LiDAR
+on the ATLASCAR2: obstacle detection, free space and local planning." -->
 
 
-![Demonstração](docs/img/demo.gif)
+![Demo](docs/img/demo.gif)
 
 | | |
 |---|---|
-| **Sensor** | LiDAR 4 feixes |
-| **Posição no carro** | TODO: |
-| **Driver ROS 2** | TODO: |
-| **Saídas** | Tópicos próprios do grupo; `/g03/grelha_local` (nav_msgs/OccupancyGrid em `base_link`, células de 0,2 m, x de -5 a 35 m, y de -10 a 10 m; -1 desconhecido, 0 livre, 100 ocupado) |
-| **Equipa** | TODO: |
+| **Sensor** | 4-beam LiDAR |
+| **Position on the car** | TODO: |
+| **ROS 2 driver** | TODO: |
+| **Outputs** | The group's own topics; `/g03/grelha_local` (nav_msgs/OccupancyGrid in `base_link`, 0.2 m cells, x from -5 to 35 m, y from -10 to 10 m; -1 unknown, 0 free, 100 occupied) |
+| **Team** | TODO: |
 
-## Arquitetura
+## Architecture
 
-<!-- Diagrama dos nós e tópicos (pode ser uma imagem em docs/img/). -->
+<!-- Diagram of nodes and topics (can be an image in docs/img/). -->
 
-| Serviço (compose) | Nó | Subscreve | Publica |
+| Compose service | Node | Subscribes | Publishes |
 |---|---|---|---|
-| `driver` | <driver do sensor> | | `<tópico standard do sensor>` |
-| `percecao` | `scan_to_grid` | `/scan`, `/tf_static` | `/g00/grelha_local` (nav_msgs/OccupancyGrid) |
-| `planeador` | `local_astar` | `/g00/grelha_local` | `/g00/caminho_local` (nav_msgs/Path), `/g00/estado` (std_msgs/String), `/g00/zona_proibida` |
+| `driver` | <sensor driver> | | `<standard sensor topic>` |
+| `percecao` | `scan_to_grid` | `/scan`, `/tf_static` | `/g03/grelha_local` (nav_msgs/OccupancyGrid) |
+| `planeador` | `local_astar` | `/g03/grelha_local` | `/g03/caminho_local` (nav_msgs/Path), `/g03/estado` (std_msgs/String), `/g03/zona_proibida` |
 
-## Como correr
+## How to run
 
-Requisitos: Docker (Ubuntu 24.04 com Docker Engine; Windows com Docker Desktop, sem sensores).
+Requirements: Docker (Ubuntu 24.04 with Docker Engine; Windows with Docker Desktop, no sensors).
 
 ```bash
-git clone <url-deste-repositório> && cd <pasta>
+git clone <repo-url> && cd <folder>
 docker compose build
-docker compose --profile simulado up                 # sem sensor: LiDAR simulado
-BAG=<pasta_em_data> docker compose --profile reproduzir up   # com um bag gravado
-docker compose --profile sensor up                   # com o sensor ligado (Linux)
+docker compose --profile simulado up                 # no sensor: simulated LiDAR
+BAG=<folder_in_data> docker compose --profile reproduzir up   # with a recorded bag
+docker compose --profile sensor up                   # with the sensor connected (Linux)
 ```
 
-Windows (PowerShell): `$env:COMPOSE_FILE = "compose.windows.yaml"` antes dos comandos acima.
-Visualização: `--profile foxglove` e, no Foxglove, `ws://localhost:8765`.
+Windows (PowerShell): `$env:COMPOSE_FILE = "compose.windows.yaml"` before the commands above.
+Visualization: `--profile foxglove` and, in Foxglove, `ws://localhost:8765`.
 
-Parâmetros que dependem do carro (IP do sensor, porta, dispositivo): <listar aqui>.
+Car-dependent parameters (sensor IP, port, device): <list here>.
 
-## Dados
+## Data
 
-| Bag | Data | Percurso | Duração | Tópicos |
+| Bag | Date | Route | Duration | Topics |
 |---|---|---|---|---|
-| `g00_<sensor>_<data>_<percurso>` | | <mapa em docs/img/> | | |
+| `g03_<sensor>_<date>_<route>` | | <map in docs/img/> | | |
 
-Os bags não estão no GitHub (ficam no SSD); ver <onde estão>.
+Bags are not on GitHub (they stay on the SSD); see <where they are>.
 
-## Resultados
+## Results
 
-<!-- Figuras geradas com:  python tools/figura_bag.py data/<bag> --grupo g00 --gif docs/img/demo.gif -->
+<!-- Figures generated with:  python tools/figura_bag.py data/<bag> --grupo g03 --gif docs/img/demo.gif -->
 
-![Instantes](docs/img/demo_instantes.png)
-![Estado ao longo do tempo](docs/img/demo_estado.png)
+![Snapshots](docs/img/demo_instantes.png)
+![State over time](docs/img/demo_estado.png)
 
-<!-- Métricas: frequência dos tópicos, tempo do A*, % do tempo em LIVRE/DESVIO/BLOQUEADO,
-     deteções corretas / falsas, etc. -->
+<!-- Metrics: topic frequencies, A* time, % of time in LIVRE/DESVIO/BLOQUEADO,
+     correct / false detections, etc. -->
 
-## Limitações e trabalho futuro
+## Limitations and future work
 
-<!-- O que não funciona, em que condições, e o que falta para a parte 2. -->
+<!-- What does not work, under which conditions, and what is still missing for part 2. -->

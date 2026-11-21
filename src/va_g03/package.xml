@@ -2,8 +2,8 @@
 <package format="3">
   <name>va_g03</name>
   <version>0.1.0</version>
-  <description>Grupo 03: driver (simulado) e perceção que publica a grelha local</description>
-  <maintainer email="grupo03@ua.pt">Grupo 03</maintainer>
+  <description>Group 03: simulated driver and perception publishing the local occupancy grid</description>
+  <maintainer email="grupo03@ua.pt">Group 03</maintainer>
   <license>MIT</license>
 
   <exec_depend>rclpy</exec_depend>

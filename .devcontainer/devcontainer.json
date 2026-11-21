@@ -1,5 +1,5 @@
 {
-  "name": "VA - projeto do grupo",
+  "name": "VA - group project",
   "build": { "dockerfile": "../Dockerfile", "context": ".." },
   "runArgs": ["--network=host", "--ipc=host"],
   "containerEnv": { "ROS_DOMAIN_ID": "42" },

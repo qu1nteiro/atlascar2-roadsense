@@ -12,9 +12,9 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Docentes de VA',
+    maintainer='VA teaching staff',
     maintainer_email='va@ua.pt',
-    description='Grelha de ocupação local e planeador local A*',
+    description='Local occupancy grid and local A* planner',
     license='MIT',
     tests_require=['pytest'],
     entry_points={
